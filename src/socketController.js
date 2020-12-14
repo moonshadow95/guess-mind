@@ -13,7 +13,7 @@ const socketController = (socket) => {
   });
 
   socket.on(events.sendMsg, ({ message }) => {
-    broadcast(events.newMsg, { nickname: socket.nickname, message });
+    broadcast(events.newMsg, { message, nickname: socket.nickname });
   });
 };
 

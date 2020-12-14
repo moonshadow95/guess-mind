@@ -17,7 +17,7 @@ const handleSendMsg = (event) => {
   event.preventDefault();
   const input = sendMsg.querySelector("input");
   const { value } = input;
-  getSocket().emit(window.events.sendMsg, { massege: value });
+  getSocket().emit(window.events.sendMsg, { message: value });
   appendMsg(value);
   input.value = "";
 };
