@@ -18,12 +18,13 @@ const handleSendMsg = (event) => {
   const input = sendMsg.querySelector("input");
   const { value } = input;
   getSocket().emit(window.events.sendMsg, { massege: value });
-  input.value = "";
   appendMsg(value);
+  input.value = "";
 };
 
-export const handleNewMessage = ({ message, nickname }) =>
+export const handleNewMessage = ({ message, nickname }) => {
   appendMsg(message, nickname);
+};
 
 if (sendMsg) {
   sendMsg.addEventListener("submit", handleSendMsg);
