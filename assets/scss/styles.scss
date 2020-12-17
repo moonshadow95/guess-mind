@@ -39,10 +39,10 @@ body {
     .gameContainer {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      gap: 20px;
-      margin: 0 20%;
+      width: 90%;
+      gap: 30px;
+      margin: 0 auto;
+      flex-wrap: wrap;
     }
   }
 }

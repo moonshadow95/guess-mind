@@ -1,3 +1,5 @@
+import { getSocket } from "./sockets";
+
 const canvas = document.getElementById("jsCanvas");
 const ctx = canvas.getContext("2d");
 const colors = document.getElementsByClassName("jsColor");
@@ -19,38 +21,57 @@ ctx.lineWidth = "2.5";
 let painting = false;
 let filling = false;
 
-function stopPainting() {
+const stopPainting = () => {
   painting = false;
-}
+};
 
-function startPainting() {
+const startPainting = () => {
   painting = true;
-}
+};
 
-function onMouseMove(event) {
+const beginPath = (x, y) => {
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+};
+
+const strokePath = (x, y, color = null) => {
+  let currentColor = ctx.strokeStyle;
+  if (color !== null) {
+    ctx.strokeStyle = color;
+  }
+  ctx.lineTo(x, y);
+  ctx.stroke();
+  ctx.strokeStyle = currentColor;
+};
+
+const onMouseMove = (event) => {
   const x = event.offsetX;
   const y = event.offsetY;
   if (!painting) {
-    ctx.beginPath();
-    ctx.moveTo(x, y);
+    beginPath(x, y);
+    getSocket().emit(window.events.beginPath, { x, y });
   } else {
-    ctx.lineTo(x, y);
-    ctx.stroke();
+    strokePath(x, y);
+    getSocket().emit(window.events.strokePath, {
+      x,
+      y,
+      color: ctx.strokeStyle,
+    });
   }
-}
+};
 
-function handleColorClick(event) {
+const handleColorClick = (event) => {
   const color = event.target.style.backgroundColor;
   ctx.strokeStyle = color;
   ctx.fillStyle = color;
-}
+};
 
-function handleRangeChange(event) {
+const handleRangeChange = (event) => {
   const size = event.target.value;
   ctx.lineWidth = size;
-}
+};
 
-function handleModeClick() {
+const handleModeClick = () => {
   if (filling === true) {
     filling = false;
     mode.innerText = "Fill";
@@ -58,25 +79,35 @@ function handleModeClick() {
     filling = true;
     mode.innerText = "Paint";
   }
-}
+};
 
-function handleCanvasClick() {
-  if (filling) {
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+const fill = (color = null) => {
+  let currentColor = ctx.fillStyle;
+  if (color !== null) {
+    ctx.fillStyle = color;
   }
-}
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = currentColor;
+};
 
-function handleCM(event) {
+const handleCanvasClick = () => {
+  if (filling) {
+    fill();
+    getSocket().emit(window.events.fill, { color: ctx.fillStyle });
+  }
+};
+
+const handleCM = (event) => {
   event.preventDefault;
-}
+};
 
-function handleSaveClick() {
+const handleSaveClick = () => {
   const image = canvas.toDataURL("image");
   const link = document.createElement("a");
   link.href = image;
   link.download = "PaintJS🎨";
   link.click();
-}
+};
 
 if (canvas) {
   canvas.addEventListener("mousemove", onMouseMove);
@@ -102,3 +133,7 @@ if (mode) {
 if (saveBtn) {
   saveBtn.addEventListener("click", handleSaveClick);
 }
+
+export const handleBeganPath = ({ x, y }) => beginPath(x, y);
+export const handleStrokedPath = ({ x, y, color }) => strokePath(x, y, color);
+export const handleFilled = ({ color }) => fill(color);
